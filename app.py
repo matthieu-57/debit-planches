@@ -152,20 +152,36 @@ def creer_pdf(panneaux):
 # ---------- La page web ----------
 st.set_page_config(page_title="Plan de débit", layout="centered")
 st.title("Plan de débit des panneaux")
-st.write("Envoie ta feuille de débit (fichier Excel avec les colonnes NBR, HAUTEUR, LARGEUR, COULEUR). Le plan de découpe se télécharge en PDF.")
+st.write("Remplis le tableau ci-dessous : une ligne par type de pièce. Pour les pièces de la zone de gauche de la feuille papier, écris la profondeur dans la case LARGEUR. Laisse vides les lignes inutilisées. Le plan de découpe se télécharge en PDF.")
 st.caption("Panneau 2800 x 2070 mm, lame 4 mm, délignage 20 mm sur chaque côté. Une couleur = des panneaux à part. Seules les pièces blanches tournent.")
 
-fichier = st.file_uploader("Feuille de débit (.xlsx)", type=["xlsx"])
+NOMS_PIECES = [
+    "SOCLE", "SOCLE PARTITION", "TABLETTE HAUTE", "TABLETTE HAUTE PANNEAU",
+    "PLAFOND", "PLAFOND MIROIR", "MONTANT", "MINI MONTANT", "MONTANT TIROIR",
+    "FILEURS TIROIR", "TABLETTE", "FOND", "FOND PLINTHE",
+    "HAUTEUR PORTE", "PARTITION", "PANNEAU", "FAÇADE TIROIR", "FOND TIROIR EP 16",
+    "ARRIÈRE TIROIR", "JOUE GAUCHE", "JOUE DROITE", "BANDEAU GAUCHE",
+    "BANDEAU DROIT", "BANDEAU HAUT", "PLINTHE",
+]
 
-if fichier is not None:
-    tableau = pd.read_excel(fichier)
+if "tableau_base" not in st.session_state:
+    st.session_state["tableau_base"] = pd.DataFrame({
+        "PIÈCE": NOMS_PIECES,
+        "NBR": [None] * len(NOMS_PIECES),
+        "HAUTEUR": [None] * len(NOMS_PIECES),
+        "LARGEUR": [None] * len(NOMS_PIECES),
+        "COULEUR": [""] * len(NOMS_PIECES),
+    })
 
-    colonnes_attendues = ["NBR", "HAUTEUR", "LARGEUR", "COULEUR"]
-    manquantes = [c for c in colonnes_attendues if c not in tableau.columns]
+tableau = st.data_editor(
+    st.session_state["tableau_base"],
+    num_rows="dynamic",
+    use_container_width=True,
+    hide_index=True,
+)
 
-    if manquantes:
-        st.error("Colonnes manquantes dans le fichier : " + ", ".join(manquantes))
-    else:
+if True:
+    if True:
         pieces = []
         for ligne in tableau.to_dict("records"):
             if pd.isna(ligne["NBR"]) or pd.isna(ligne["HAUTEUR"]) or pd.isna(ligne["LARGEUR"]):
@@ -220,3 +236,4 @@ if fichier is not None:
                 file_name="plan_de_decoupe.pdf",
                 mime="application/pdf",
             )
+
