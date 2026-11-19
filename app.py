@@ -184,12 +184,20 @@ if True:
     if True:
         pieces = []
         for ligne in tableau.to_dict("records"):
+            try:
+                nbr = int(float(ligne["NBR"]))
+                hauteur = float(ligne["HAUTEUR"])
+                largeur = float(ligne["LARGEUR"])
+            except (TypeError, ValueError):
+                continue
+            if nbr <= 0 or hauteur <= 0 or largeur <= 0:
+                continue
             if pd.isna(ligne["NBR"]) or pd.isna(ligne["HAUTEUR"]) or pd.isna(ligne["LARGEUR"]):
                 continue
             pieces.append({
-                "nbr": ligne["NBR"],
-                "hauteur": ligne["HAUTEUR"],
-                "largeur": ligne["LARGEUR"],
+                "nbr": nbr,
+                "hauteur": hauteur,
+                "largeur": largeur,
                 "couleur": ligne["COULEUR"],
             })
 
